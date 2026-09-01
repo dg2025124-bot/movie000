@@ -162,7 +162,81 @@ st.info("**이 그래프로 알 수 있는 것:** (여기에 이 그래프에서
 st.divider()
 
 # ----------------------------------------------------------------------------
-# 구역 4. (다음 그래프를 추가할 자리)
+# 구역 4. 일관객 합계 TOP 10 영화
 # ----------------------------------------------------------------------------
-st.header("구역 4. 추가 예정")
+st.header("구역 4. 일관객 합계 TOP 10 영화")
+
+movie_summary = (
+    df.groupby("영화명")
+    .agg(일관객합계=("일관객", "sum"), 순위진입일수=("영화명", "count"))
+    .reset_index()
+)
+
+top10_summary = movie_summary.sort_values("일관객합계", ascending=False).head(10)
+# 가로 막대그래프에서 위쪽에 큰 값이 오도록 오름차순으로 정렬해 전달
+top10_summary = top10_summary.sort_values("일관객합계", ascending=True)
+
+fig4 = px.bar(
+    top10_summary,
+    x="일관객합계",
+    y="영화명",
+    orientation="h",
+    title="일관객 합계 TOP 10 영화",
+    labels={"일관객합계": "일관객 합계", "영화명": "영화", "순위진입일수": "10위권 진입 일수"},
+    custom_data=["순위진입일수"],
+)
+fig4.update_traces(
+    hovertemplate="영화: %{y}<br>일관객 합계: %{x:,}명<br>10위권 진입 일수: %{customdata[0]}일<extra></extra>"
+)
+fig4.update_layout(yaxis=dict(categoryorder="total ascending"))
+
+st.plotly_chart(fig4, use_container_width=True)
+
+st.info("**이 그래프로 알 수 있는 것:** (여기에 이 그래프에서 읽어낼 수 있는 내용을 한 문장으로 적어주세요.)")
+
+st.divider()
+
+# ----------------------------------------------------------------------------
+# 구역 5. 월 × 요일별 일관객 합계 히트맵
+# ----------------------------------------------------------------------------
+st.header("구역 5. 월 × 요일별 일관객 합계 히트맵")
+
+heatmap_df = df.copy()
+heatmap_df["월"] = heatmap_df["날짜"].dt.month
+heatmap_df["요일"] = heatmap_df["날짜"].dt.dayofweek  # 0=월요일 ... 6=일요일
+
+weekday_names = ["월", "화", "수", "목", "금", "토", "일"]
+
+pivot = (
+    heatmap_df.groupby(["월", "요일"])["일관객"]
+    .sum()
+    .reset_index()
+    .pivot(index="요일", columns="월", values="일관객")
+    .reindex(index=range(7))  # 월요일(0)~일요일(6) 순서 고정
+)
+pivot.index = weekday_names
+pivot.columns = [f"{m}월" for m in pivot.columns]
+
+fig5 = px.imshow(
+    pivot,
+    color_continuous_scale="Reds",
+    aspect="auto",
+    labels=dict(x="월", y="요일", color="일관객 합계"),
+    title="월 × 요일별 일관객 합계 히트맵",
+)
+fig5.update_traces(
+    hovertemplate="%{x} · %{y}요일<br>일관객 합계: %{z:,}명<extra></extra>"
+)
+fig5.update_xaxes(side="top")
+
+st.plotly_chart(fig5, use_container_width=True)
+
+st.info("**이 그래프로 알 수 있는 것:** (여기에 이 그래프에서 읽어낼 수 있는 내용을 한 문장으로 적어주세요.)")
+
+st.divider()
+
+# ----------------------------------------------------------------------------
+# 구역 6. (다음 그래프를 추가할 자리)
+# ----------------------------------------------------------------------------
+st.header("구역 6. 추가 예정")
 st.caption("다음 그래프가 이 구역에 추가될 예정입니다.")
