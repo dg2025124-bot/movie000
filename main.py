@@ -287,7 +287,50 @@ st.info("**이 그래프로 알 수 있는 것:** (여기에 이 그래프에서
 st.divider()
 
 # ----------------------------------------------------------------------------
-# 구역 7. (다음 그래프를 추가할 자리)
+# 구역 7. 가장 인기 없는 영화
 # ----------------------------------------------------------------------------
-st.header("구역 7. 추가 예정")
+st.header("구역 7. 가장 인기 없는 영화")
+
+# '가장 인기 없는 영화' = 기간 내 일관객 합계가 가장 작은 영화
+least_popular_summary = movie_summary.sort_values("일관객합계", ascending=True).iloc[0]
+least_popular_name = least_popular_summary["영화명"]
+
+least_df = df[df["영화명"] == least_popular_name].sort_values("날짜")
+
+st.subheader(f"🎬 {least_popular_name}")
+
+col1, col2, col3, col4 = st.columns(4)
+col1.metric("총 관객수", f"{least_df['일관객'].sum():,.0f}명")
+col2.metric("10위권 진입 일수", f"{len(least_df)}일")
+col3.metric("최고 순위", f"{int(least_df['순위'].min())}위")
+col4.metric("최고 스크린수", f"{int(least_df['스크린수'].max()):,}개")
+
+fig7 = px.bar(
+    least_df,
+    x="날짜",
+    y="일관객",
+    title=f"'{least_popular_name}' 10위권 진입 기간 동안의 날짜별 관객수",
+    labels={"날짜": "날짜", "일관객": "일일 관객수"},
+)
+fig7.update_traces(
+    marker_color="#9d4edd",
+    hovertemplate="날짜: %{x|%Y-%m-%d}<br>일일 관객수: %{y:,}명<extra></extra>",
+)
+fig7.update_layout(xaxis=dict(type="category"))  # 진입 일수가 적을 때 날짜 간격이 도드라지지 않게
+
+st.plotly_chart(fig7, use_container_width=True)
+
+st.caption(
+    f"📌 '{least_popular_name}'은(는) 이 기간 동안 총 {len(least_df)}일 박스오피스 10위권에 들었고, "
+    f"그동안 누적 {least_df['일관객'].sum():,.0f}명이 관람했습니다."
+)
+
+st.info("**이 그래프로 알 수 있는 것:** (여기에 이 그래프에서 읽어낼 수 있는 내용을 한 문장으로 적어주세요.)")
+
+st.divider()
+
+# ----------------------------------------------------------------------------
+# 구역 8. (다음 그래프를 추가할 자리)
+# ----------------------------------------------------------------------------
+st.header("구역 8. 추가 예정")
 st.caption("다음 그래프가 이 구역에 추가될 예정입니다.")
