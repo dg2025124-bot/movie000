@@ -199,7 +199,7 @@ st.divider()
 # ----------------------------------------------------------------------------
 # 구역 5. 월 × 요일별 일관객 합계 히트맵
 # ----------------------------------------------------------------------------
-st.header("구역 5. 월 × 요일별 일관객 합계 히트맵")
+st.header("구역 5. 월 × 요일별 일관객 평균 히트맵")
 
 heatmap_df = df.copy()
 heatmap_df["월"] = heatmap_df["날짜"].dt.month
@@ -209,7 +209,7 @@ weekday_names = ["월", "화", "수", "목", "금", "토", "일"]
 
 pivot = (
     heatmap_df.groupby(["월", "요일"])["일관객"]
-    .sum()
+    .mean()
     .reset_index()
     .pivot(index="요일", columns="월", values="일관객")
     .reindex(index=range(7))  # 월요일(0)~일요일(6) 순서 고정
@@ -221,11 +221,11 @@ fig5 = px.imshow(
     pivot,
     color_continuous_scale="Reds",
     aspect="auto",
-    labels=dict(x="월", y="요일", color="일관객 합계"),
-    title="월 × 요일별 일관객 합계 히트맵",
+    labels=dict(x="월", y="요일", color="일관객 평균"),
+    title="월 × 요일별 일관객 평균 히트맵",
 )
 fig5.update_traces(
-    hovertemplate="%{x} · %{y}요일<br>일관객 합계: %{z:,}명<extra></extra>"
+    hovertemplate="%{x} · %{y}요일<br>일관객 평균: %{z:,.0f}명<extra></extra>"
 )
 fig5.update_xaxes(side="top")
 
