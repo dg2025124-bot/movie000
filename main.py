@@ -236,7 +236,58 @@ st.info("**이 그래프로 알 수 있는 것:** (여기에 이 그래프에서
 st.divider()
 
 # ----------------------------------------------------------------------------
-# 구역 6. (다음 그래프를 추가할 자리)
+# 구역 6. '오디세이' 흥행 시점
 # ----------------------------------------------------------------------------
-st.header("구역 6. 추가 예정")
+st.header("구역 6. '오디세이' 흥행 시점")
+
+odyssey_df = df[df["영화명"].str.contains("오디세이", na=False)].sort_values("날짜")
+
+if odyssey_df.empty:
+    st.warning("데이터에서 영화명에 '오디세이'가 포함된 영화를 찾을 수 없습니다.")
+else:
+    odyssey_title = odyssey_df["영화명"].mode().iloc[0]  # 가장 흔한 표기 사용
+    peak_row = odyssey_df.loc[odyssey_df["일관객"].idxmax()]
+
+    # 가장 많이 본 날을 다른 색으로 강조하기 위한 구분 열
+    odyssey_df = odyssey_df.copy()
+    odyssey_df["구분"] = "그 외 날짜"
+    odyssey_df.loc[odyssey_df["날짜"] == peak_row["날짜"], "구분"] = "가장 많이 본 날"
+
+    fig6 = px.bar(
+        odyssey_df,
+        x="날짜",
+        y="일관객",
+        color="구분",
+        color_discrete_map={"그 외 날짜": "#8ab4f8", "가장 많이 본 날": "#e63946"},
+        title=f"'{odyssey_title}' 날짜별 관객수",
+        labels={"날짜": "날짜", "일관객": "일일 관객수"},
+    )
+    fig6.update_traces(
+        hovertemplate="날짜: %{x|%Y-%m-%d}<br>일일 관객수: %{y:,}명<extra></extra>"
+    )
+    fig6.add_annotation(
+        x=peak_row["날짜"],
+        y=peak_row["일관객"],
+        text=f"최고: {peak_row['날짜'].strftime('%Y-%m-%d')} ({peak_row['일관객']:,.0f}명)",
+        showarrow=True,
+        arrowhead=2,
+        yshift=15,
+    )
+    fig6.update_layout(legend_title_text="")
+
+    st.plotly_chart(fig6, use_container_width=True)
+
+    col1, col2, col3 = st.columns(3)
+    col1.metric("가장 많이 본 날", peak_row["날짜"].strftime("%Y-%m-%d"))
+    col2.metric("그날 관객수", f"{peak_row['일관객']:,.0f}명")
+    col3.metric("기간 내 총 관객수", f"{odyssey_df['일관객'].sum():,.0f}명")
+
+st.info("**이 그래프로 알 수 있는 것:** (여기에 이 그래프에서 읽어낼 수 있는 내용을 한 문장으로 적어주세요.)")
+
+st.divider()
+
+# ----------------------------------------------------------------------------
+# 구역 7. (다음 그래프를 추가할 자리)
+# ----------------------------------------------------------------------------
+st.header("구역 7. 추가 예정")
 st.caption("다음 그래프가 이 구역에 추가될 예정입니다.")
