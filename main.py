@@ -108,7 +108,61 @@ st.info("**이 그래프로 알 수 있는 것:** (여기에 이 그래프에서
 st.divider()
 
 # ----------------------------------------------------------------------------
-# 구역 3. (다음 그래프를 추가할 자리)
+# 구역 3. 날짜별 10위권 일관객 합계 추이
 # ----------------------------------------------------------------------------
-st.header("구역 3. 추가 예정")
+st.header("구역 3. 날짜별 10위권 일관객 합계 추이")
+
+daily_total = (
+    df.groupby("날짜")["일관객"]
+    .sum()
+    .reset_index()
+    .sort_values("날짜")
+)
+
+top3_days = daily_total.sort_values("일관객", ascending=False).head(3)
+
+fig3 = px.area(
+    daily_total,
+    x="날짜",
+    y="일관객",
+    title="날짜별 박스오피스 10위권 일관객 합계",
+    labels={"날짜": "날짜", "일관객": "일일 관객수 합계"},
+)
+fig3.update_traces(
+    hovertemplate="날짜: %{x|%Y-%m-%d}<br>합계 관객수: %{y:,}명<extra></extra>"
+)
+
+# 상위 3일을 점으로 강조 표시
+fig3.add_scatter(
+    x=top3_days["날짜"],
+    y=top3_days["일관객"],
+    mode="markers",
+    marker=dict(size=10, color="red"),
+    name="상위 3일",
+    hovertemplate="날짜: %{x|%Y-%m-%d}<br>합계 관객수: %{y:,}명<extra>상위 3일</extra>",
+)
+
+# 상위 3일 날짜 라벨 표시
+for _, row in top3_days.iterrows():
+    fig3.add_annotation(
+        x=row["날짜"],
+        y=row["일관객"],
+        text=row["날짜"].strftime("%Y-%m-%d"),
+        showarrow=True,
+        arrowhead=2,
+        yshift=15,
+    )
+
+fig3.update_layout(hovermode="x unified")
+
+st.plotly_chart(fig3, use_container_width=True)
+
+st.info("**이 그래프로 알 수 있는 것:** (여기에 이 그래프에서 읽어낼 수 있는 내용을 한 문장으로 적어주세요.)")
+
+st.divider()
+
+# ----------------------------------------------------------------------------
+# 구역 4. (다음 그래프를 추가할 자리)
+# ----------------------------------------------------------------------------
+st.header("구역 4. 추가 예정")
 st.caption("다음 그래프가 이 구역에 추가될 예정입니다.")
